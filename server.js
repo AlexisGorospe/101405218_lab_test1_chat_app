@@ -1,6 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var auth = require('./routes/user_authorization.js');
 
 rooms = [
     "general",
@@ -15,7 +16,7 @@ app.get('/chat', function(req, res) {
     res.sendfile('./view/chat.html');
 });
 
-app.get('/login', function(req, res) {
+app.get('/', function(req, res) {
     res.sendfile('./view/login.html');
 });
 

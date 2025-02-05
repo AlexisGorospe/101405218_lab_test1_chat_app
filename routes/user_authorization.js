@@ -1,15 +1,14 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 
-require('dotenv').config();
+// require('dotenv').config();
 
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
-    const {username, pasword} = req.body;
+    const {username, password} = req.body;
 
     try{
         const newUser = newUser({ username, password });
@@ -50,7 +49,7 @@ router.post("/login", async (req, res) => {
     try{
         const user = await User.findOne({username});
 
-        if (user != false && password == user.password) {
+        if (user && password == user.password) {
             const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET, {expiresIn: '24h'});
             res.status(200).json({token})
         }
