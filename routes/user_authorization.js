@@ -39,9 +39,6 @@ const auth = (req, res, next) => {
     })
 }
 
-router.get("/protected", auth, (req, res) => {
-    res.status(200).json({message: "access granted"})
-})
 
 router.post("/login", async (req, res) => {
     const {username, password} = req.body;
