@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Chat</title>
+		<link rel="stylesheet" href="./style_signup.css">
+	</head>
+
+	<style>
+        body{
+            margin: 0;
+			padding: 0;
+			background-color: black;
+
+			#chat_intro{
+                display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+
+				.titlebar{
+                    background-color: darkred;
+					width: 400px;
+					height: 50px;
+					text-align: center;
+					align-items: center;
+					vertical-align: center;
+
+                    h2{
+                        color: white;
+                    }
+                }
+
+
+            }
+        }
+
+		p{
+			color: white;
+		}
+
+		.message, #error-container{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+
+			color:white;
+		}
+	</style>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var socket = io();
+
+		function setUsername() {
+			socket.emit('setUsername', document.getElementById('name').value);
+		};
+
+		var user;
+		socket.on('userExists', function (data) {
+			document.getElementById('error-container').innerHTML = data;
+		});
+
+		socket.on('userSet', function (data) {
+			user = data.username;
+			document.body.innerHTML = '\
+			<input type = "text" id = "message">\
+			<button type="button" name="button" onclick = "sendMessage()">Send Message</button>\
+			<select name="rooms" id="rooms" onchange="(changeRoom())">\
+                <option value="general">general</option>\
+				<option value="devops">devops</option>\
+				<option value="cloud computing">cloud computing</option>\
+				<option value="covid19">covid19</option>\
+				<option value="sports">sports</option>\
+				<option value="nodeJS">nodeJS</option>\
+            <select>\
+            <p id="currentRoom">Current room: general</p>\
+            <div id = "message-container">...</div>\
+            ';
+		});
+
+		function sendMessage() {
+			var msg = document.getElementById('message').value;
+            var room = document.getElementById('rooms').value;
+            console.log(room)
+			if (msg) {
+				socket.emit('msg', {message: msg, user: user, room: room});
+			}
+		}
+
+        function changeRoom(){
+            var newRoom = document.getElementById('rooms').value;
+            // var currentRoom = document.getElementById('rooms').value;
+            socket.emit('cngrm', {newRoom: newRoom});
+            document.getElementById('currentRoom').innerHTML = "Current room: " + newRoom;
+        }
+
+		socket.on('newmsg', function (data) {
+			if (user) {
+				document.getElementById('message-container').innerHTML += '<div class="message"><p>' +
+					data.user + '</p>: ' + data.message + '</div>'
+			}
+		})
+	</script>
+
+	<body>
+		<div id="chat_intro">
+			<div class="titlebar">
+				<h2>What do you want to be called?</h2>
+			</div>
+
+			<div id="error-container"></div>
+			<div>
+				<input id="name" type="text" name="name" value="" placeholder="Enter your name!">
+				<button type="button" name="button" onclick="setUsername()">
+					it's chat time
+				</button>
+			</div>
+
+		</div>
+	</body>
+</html>
